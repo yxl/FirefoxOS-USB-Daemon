@@ -226,6 +226,7 @@ void MainFrame::OnStringReceived(const char* utf8String)
 	USES_CONVERSION;
 	CString msg = CA2T(utf8String);
 	TRACE(_T("Socket message received: %s"), msg);
+	msg.Replace(_T("\n"), _T("{ENTER}"));
 	sk.SendKeys(msg);
 }
 
