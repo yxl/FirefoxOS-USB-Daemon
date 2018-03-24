@@ -219,11 +219,14 @@ void MainFrame::OnDisconnect()
 	UpdateClientNum();
 }
 
+CSendKeys sk;
+
 void MainFrame::OnStringReceived(const char* utf8String)
 {
 	USES_CONVERSION;
 	CString msg = CA2T(utf8String);
 	TRACE(_T("Socket message received: %s"), msg);
+	sk.SendKeys(msg);
 }
 
 void MainFrame::SetupWindowRegion()

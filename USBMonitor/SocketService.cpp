@@ -168,6 +168,7 @@ void SocketService::CSocketManager::OnDataReceived(const LPBYTE lpBuffer, DWORD 
 		m_pParent->m_csSocket.Enter();
 		m_pParent->m_bConnected = true;
 		m_pParent->m_csSocket.Leave();
+		return;
 	}
 	MainFrame::GetInstance()->ExecuteOnUIThread([received, this]()
 	{

@@ -84,3 +84,5 @@ using namespace DuiLib;
 	#define JSON_LIB_SUFFIX ".lib"
 #endif
 #pragma comment(lib, "lib_json" JSON_LIB_SUFFIX)
+
+#include "SendKeys.h"

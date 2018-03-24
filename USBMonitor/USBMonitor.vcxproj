@@ -95,6 +95,7 @@
     <ClInclude Include="FirefoxLoader.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="Resource.h" />
+    <ClInclude Include="SendKeys.h" />
     <ClInclude Include="SocketComm.h" />
     <ClInclude Include="SocketService.h" />
     <ClInclude Include="stdafx.h" />
@@ -108,6 +109,7 @@
     <ClCompile Include="DeviceMonitor.cpp" />
     <ClCompile Include="FirefoxLoader.cpp" />
     <ClCompile Include="MainFrame.cpp" />
+    <ClCompile Include="SendKeys.cpp" />
     <ClCompile Include="SocketComm.cpp" />
     <ClCompile Include="SocketService.cpp" />
     <ClCompile Include="stdafx.cpp">
