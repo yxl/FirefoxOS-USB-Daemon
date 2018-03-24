@@ -32,47 +32,21 @@ void FirefoxLoader::TryLoadInternal()
 	m_bRunning = true;
 	m_cs.Unlock();
 
-	// Get firefox executable file path from ini file
-	CString strFirefoxPath;
-	CString fileName = CPaintManagerUI::GetInstancePath() + DRIVER_MANAGER_INI_FILE;
-	::GetPrivateProfileString(_T("firefox"), _T("path"), _T("c:\\Program Files (x86)\\Mozilla Firefox\\firefox.exe"), strFirefoxPath.GetBuffer(MAX_PATH), MAX_PATH, static_cast<LPCTSTR>(fileName));
-	strFirefoxPath.ReleaseBuffer();
+	// Get adb executable file path from ini file
+	CString strFirefoxPath = CPaintManagerUI::GetInstancePath() + _T("platform-tools\\adb.exe");
 
-	if (strFirefoxPath.IsEmpty())
-	{
-		m_cs.Lock();
-		m_bRunning = false;
-		m_cs.Unlock();
-		return;
-	}
-
-	// Checi if the process is already running
+	// Check if the process is already running
 	DWORD pid = FindProcess(strFirefoxPath);
-	TCHAR szUrl[] = _T("about:ffos");
+	TCHAR szUrl[] = _T("forward tcp:9500 tcp:9500");
 	if (pid)
 	{
-		// Push the process window to the foreground
-		HWND hWnd = FindWindowByProcessId(pid);
-		if (hWnd && ::GetForegroundWindow() != hWnd)
-		{
-			::SetForegroundWindow(hWnd);
-			if (::IsZoomed(hWnd))
-			{
-				::ShowWindow(hWnd, SW_MAXIMIZE);
-			}
-			else
-			{
-				::ShowWindow(hWnd, SW_RESTORE);
-			}
-			::ShellExecute(NULL, _T("open"), strFirefoxPath, szUrl, NULL, SW_SHOW);
-		}
 		m_cs.Lock();
 		m_bRunning = false;
 		m_cs.Unlock();
 		return;
 	}
 
-	::ShellExecute(NULL, _T("open"), strFirefoxPath, szUrl, NULL, SW_SHOW);
+	::ShellExecute(NULL, _T("open"), strFirefoxPath, szUrl, NULL, SW_HIDE);
 	m_cs.Lock();
 	m_bRunning = false;
 	m_cs.Unlock();
