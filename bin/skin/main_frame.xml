@@ -11,7 +11,7 @@
             <Label name="deviceStatusLabel" text="No change" float="true" pos="26,133,0,0" width="133" height="22" textcolor="#00FFFBF0" disabledtextcolor="#FFA7A6AA" font="1" />
             <List name="deviceList" float="true" pos="25,154,0,0" width="139" height="90" padding="10,0,10,0" bkcolor="#FFFFFBF0" bkcolor2="#001E1E1E" itemtextcolor="#FFFFFFFF" itemselectedtextcolor="#FF000000" itemselectedbkcolor="#FFC1E3FF" itemhottextcolor="#FF000000" itemhotbkcolor="#FFE9F5FF" itemdisabledtextcolor="#FFCCCCCC" itemdisabledbkcolor="#FFFFFFFF" itemfont="2" vscrollbar="true">
                 <ListHeader height="20">
-                    <ListHeaderItem text="Serial" width="65" height="20" minwidth="16" textcolor="#FF000000" sepwidth="4" align="left" />
+                    <ListHeaderItem text="Device" width="65" height="20" minwidth="16" textcolor="#FF000000" sepwidth="4" align="left" />
                     <ListHeaderItem text="Driver" width="74" height="20" minwidth="16" textcolor="#FF000000" sepwidth="4" align="left" />
                 </ListHeader>
             </List>

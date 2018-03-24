@@ -1,7 +1,7 @@
 {
 	"version":1.0,
-	"devices": [{"display_name": "Alcate One Touch Fire",
-	"device_name": "MSM7627A",
-	"hardware_id": "USB\\VID_05C6&PID_9025&REV_0231&MI_01,USB\\VID_05C6&PID_9025&MI_01",
-	"vendor_id": "05c6:9025"}]
+	"devices": [{"display_name": "RFID Android Reader",
+	"device_name": "ADB Interface",
+	"hardware_id": "USB\\VID_05C6&PID_9039&REV_0310&MI_01,USB\\VID_05C6&PID_9039&MI_01",
+	"vendor_id": "05c6:9039"}]
 }

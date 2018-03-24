@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+﻿#include "StdAfx.h"
 #include "MainFrame.h"
 #include "App.h"
 #include "FirefoxLoader.h"
@@ -172,24 +172,23 @@ LPCTSTR MainFrame::GetItemText(CControlUI* pList, int iItem, int iSubItem)
 	LPCTSTR strText = _T("");
 	
 	m_pDeviceMonitor->Lock();
-/*	const DeviceInfo* pInfo = m_pDeviceMonitor->GetDeviceInfoByIndex(iItem);
-	if (pInfo == NULL)
+	if (m_pDeviceMonitor->m_aDeviceList.size() <= iItem)
 	{
 		m_pDeviceMonitor->Unlock();
 		return strText;
 	}
+	Json::Value& device = m_pDeviceMonitor->m_aDeviceList[iItem];
 
 	switch(iSubItem)
 	{
 	case 0:
 		{
-			strText = pInfo->DeviceSerialNumber;
-			m_pDeviceMonitor->Unlock();
+			strText = _T("手持读卡器");
 		}
 		break;
 	case 1:
 		{
-			strText = pInfo->GetInstallStateString();
+			strText = device["InstallState"].asInt() == 0 ? _T("Ready") : _T("Not Ready");
 		}
 		break;
 	default:	
@@ -197,7 +196,7 @@ LPCTSTR MainFrame::GetItemText(CControlUI* pList, int iItem, int iSubItem)
 			strText = _T("Unknown");
 		}
 		break;
-	}*/
+	}
 
 	m_pDeviceMonitor->Unlock();
 
