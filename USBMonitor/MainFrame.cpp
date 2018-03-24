@@ -48,6 +48,7 @@ void MainFrame::OnPrepare(TNotifyUI& msg)
 	m_pDeviceList->SetTextCallback(this);
 
 	UpdateDeviceList();
+	UpdateClientNum();
 }
 
 void MainFrame::InitWindow()
@@ -61,13 +62,15 @@ void MainFrame::InitWindow()
 	// Register to get notification when the supported devices are changed.
 	m_pDeviceMonitor->AddObserver(this);
 
-	m_pSocketService->Start();
-
 	// Load firefox if there exits firefox OS devices
 	if (m_pDeviceMonitor->m_aDeviceList.size() > 0)
 	{
 		FirefoxLoader::TryLoad();
 	}
+
+	m_pSocketService->Start();
+
+	::SetTimer(this->GetHWND(), SOCKET_CHECK_TIMER_ID, 2000, NULL);
 }
 
 void MainFrame::OnFinalMessage(HWND hWnd)
@@ -218,47 +221,9 @@ void MainFrame::OnDisconnect()
 
 void MainFrame::OnStringReceived(const char* utf8String)
 {
-	CStringA strData = utf8String;
-
-	// Replace "\r" with "\n"
-	strData.Replace("\r", "\n");
-	while (strData.Replace("\n\n", "\n"))
-	{
-		// do noting.
-	}
-
-	// Deal with backspace
-	if (strData == _T("\b"))
-	{
-		m_csSocket.Enter();
-		int bufferCount = m_strSocketCmdBuffer.GetLength();
-		if (bufferCount > 0)
-		{
-			m_strSocketCmdBuffer.Delete(bufferCount - 1);
-		}
-		m_csSocket.Leave();
-		return;
-	}
-
-	// Check if the whole command is received.
-	int cmdEndPos = strData.Find("\n");
-	if (cmdEndPos == -1)
-	{
-		m_csSocket.Enter();
-		m_strSocketCmdBuffer.Append(strData);
-		m_csSocket.Leave();
-		return;
-	}
-
-	m_csSocket.Enter();
-	CStringA cmdline = m_strSocketCmdBuffer + strData.Mid(0, cmdEndPos);
-	m_strSocketCmdBuffer = strData.Mid(cmdEndPos + 1);
-	m_csSocket.Leave();
-
-	if (cmdline.GetLength() > 0)
-	{
-		HandleSocketCommand(UTF8ToCString(cmdline));
-	}
+	USES_CONVERSION;
+	CString msg = CA2T(utf8String);
+	TRACE(_T("Socket message received: %s"), msg);
 }
 
 void MainFrame::SetupWindowRegion()
@@ -379,6 +344,15 @@ void MainFrame::OnTimer(UINT_PTR nIDEvent)
 		}
 
 		UpdateDeviceList();
+	}
+	else if (nIDEvent == SOCKET_CHECK_TIMER_ID)
+	{
+		if (m_pSocketService->GetClientCount() == 0)
+		{
+			FirefoxLoader::TryLoad();
+			m_pSocketService->StartNewServer();
+		}
+		UpdateClientNum();
 	}
 }
 

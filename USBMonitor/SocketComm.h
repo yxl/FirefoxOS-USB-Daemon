@@ -21,7 +21,7 @@
 #define EVT_ZEROLENGTH      0x0003  // Zero length message
 
 #ifndef BUFFER_SIZE
-#define BUFFER_SIZE     2000
+#define BUFFER_SIZE     MAX_PATH
 #endif
 #define HOSTNAME_SIZE   MAX_PATH
 #define STRING_LENGTH   40
@@ -57,74 +57,74 @@ typedef std::list<SockAddrIn> CSockAddrList;
 
 struct stMessageProxy
 {
-  SockAddrIn address;
-  BYTE byData[BUFFER_SIZE];
+	SockAddrIn address;
+	BYTE byData[BUFFER_SIZE];
 };
 
 class CSocketComm
 {
 public:
-    CSocketComm();
-    virtual ~CSocketComm();
+	CSocketComm();
+	virtual ~CSocketComm();
 
-    bool IsOpen() const;    // Is Socket valid?
-    bool IsStart() const;   // Is Thread started?
-    bool IsServer() const;  // Is running in server mode
-    bool IsBroadcast() const; // Is UDP Broadcast active
-    bool IsSmartAddressing() const; // Is Smart Addressing mode support
-    SOCKET GetSocket() const;   // return socket handle
-    void SetServerState(bool bServer);  // Run as server mode if true
-    void SetSmartAddressing(bool bSmartAddressing); // Set Smart addressing mode
-    bool GetSockName(SockAddrIn& saddr_in); // Get Socket name - address
-    bool GetPeerName(SockAddrIn& saddr_in); // Get Peer Socket name - address
-    bool AddMembership(LPCTSTR strAddress);
-    bool DropMembership(LPCTSTR strAddress);
-    void AddToList(const SockAddrIn& saddr_in); // Add an address to the list
-    void RemoveFromList(const SockAddrIn& saddr_in);    // Remove an address from the list
-    void CloseComm();       // Close Socket
-    bool WatchComm();       // Start Socket thread
-    void StopComm();        // Stop Socket thread
+	bool IsOpen() const;    // Is Socket valid?
+	bool IsStart() const;   // Is Thread started?
+	bool IsServer() const;  // Is running in server mode
+	bool IsBroadcast() const; // Is UDP Broadcast active
+	bool IsSmartAddressing() const; // Is Smart Addressing mode support
+	SOCKET GetSocket() const;   // return socket handle
+	void SetServerState(bool bServer);  // Run as server mode if true
+	void SetSmartAddressing(bool bSmartAddressing); // Set Smart addressing mode
+	bool GetSockName(SockAddrIn& saddr_in); // Get Socket name - address
+	bool GetPeerName(SockAddrIn& saddr_in); // Get Peer Socket name - address
+	bool AddMembership(LPCTSTR strAddress);
+	bool DropMembership(LPCTSTR strAddress);
+	void AddToList(const SockAddrIn& saddr_in); // Add an address to the list
+	void RemoveFromList(const SockAddrIn& saddr_in);    // Remove an address from the list
+	void CloseComm();       // Close Socket
+	bool WatchComm();       // Start Socket thread
+	void StopComm();        // Stop Socket thread
 
-    // Create a socket - Server side (support for multiple adapters)
-    bool CreateSocketEx(LPCTSTR strHost, LPCTSTR strServiceName, int nFamily, int nType, UINT uOptions /* = 0 */);
-    // Create a Socket - Server side
-    bool CreateSocket(LPCTSTR strServiceName, int nProtocol, int nType, UINT uOptions = 0);
-    // Create a socket, connect to (Client side)
-    bool ConnectTo(LPCTSTR strDestination, LPCTSTR strServiceName, int nProtocol, int nType);
+							// Create a socket - Server side (support for multiple adapters)
+	bool CreateSocketEx(LPCTSTR strHost, LPCTSTR strServiceName, int nFamily, int nType, UINT uOptions /* = 0 */);
+	// Create a Socket - Server side
+	bool CreateSocket(LPCTSTR strServiceName, int nProtocol, int nType, UINT uOptions = 0);
+	// Create a socket, connect to (Client side)
+	bool ConnectTo(LPCTSTR strDestination, LPCTSTR strServiceName, int nProtocol, int nType);
 
-// Event function - override to get data
-    virtual void OnDataReceived(const LPBYTE lpBuffer, DWORD dwCount);
-    virtual void OnEvent(UINT uEvent, LPVOID lpvData);
-// Run function - override to implement a new behaviour
-    virtual void Run();
+	// Event function - override to get data
+	virtual void OnDataReceived(const LPBYTE lpBuffer, DWORD dwCount);
+	virtual void OnEvent(UINT uEvent, LPVOID lpvData);
+	// Run function - override to implement a new behaviour
+	virtual void Run();
 
-// Data function
-    DWORD ReadComm(LPBYTE lpBuffer, DWORD dwSize, DWORD dwTimeout);
-    DWORD WriteComm(const LPBYTE lpBuffer, DWORD dwCount, DWORD dwTimeout);
+	// Data function
+	DWORD ReadComm(LPBYTE lpBuffer, DWORD dwSize, DWORD dwTimeout);
+	DWORD WriteComm(const LPBYTE lpBuffer, DWORD dwCount, DWORD dwTimeout);
 
-    // Utility functions
-    static SOCKET WaitForConnection(SOCKET sock); // Wait For a new connection (Server side)
-    static bool ShutdownConnection(SOCKET sock);  // Shutdown a connection
-    static USHORT GetPortNumber( LPCTSTR strServiceName );  // Get service port number
-    static ULONG GetIPAddress( LPCTSTR strHostName );   // Get IP address of a host
-    static bool GetLocalName(LPTSTR strName, UINT nSize);   // GetLocalName
-    static bool GetLocalAddress(LPTSTR strAddress, UINT nSize); // GetLocalAddress
-// SocketComm - data
+	// Utility functions
+	static SOCKET WaitForConnection(SOCKET sock); // Wait For a new connection (Server side)
+	static bool ShutdownConnection(SOCKET sock);  // Shutdown a connection
+	static USHORT GetPortNumber(LPCTSTR strServiceName);  // Get service port number
+	static ULONG GetIPAddress(LPCTSTR strHostName);   // Get IP address of a host
+	static bool GetLocalName(LPTSTR strName, UINT nSize);   // GetLocalName
+	static bool GetLocalAddress(LPTSTR strAddress, UINT nSize); // GetLocalAddress
+																// SocketComm - data
 protected:
-    HANDLE      m_hComm;        // Serial Comm handle
-    HANDLE      m_hThread;      // Thread Comm handle
-    bool        m_bServer;      // Server mode (true)
-    bool        m_bSmartAddressing; // Smart Addressing mode (true) - many listeners
-    bool        m_bBroadcast;   // Broadcast mode
-    CSockAddrList m_AddrList;   // Connection address list for broadcast
-    HANDLE      m_hMutex;       // Mutex object
-// SocketComm - function
+	HANDLE      m_hComm;        // Serial Comm handle
+	HANDLE      m_hThread;      // Thread Comm handle
+	bool        m_bServer;      // Server mode (true)
+	bool        m_bSmartAddressing; // Smart Addressing mode (true) - many listeners
+	bool        m_bBroadcast;   // Broadcast mode
+	CSockAddrList m_AddrList;   // Connection address list for broadcast
+	HANDLE      m_hMutex;       // Mutex object
+								// SocketComm - function
 protected:
-    // Synchronization function
-    void LockList();            // Lock the object
-    void UnlockList();          // Unlock the object
+	// Synchronization function
+	void LockList();            // Lock the object
+	void UnlockList();          // Unlock the object
 
-    static UINT WINAPI SocketThreadProc(LPVOID pParam);
+	static UINT WINAPI SocketThreadProc(LPVOID pParam);
 
 private:
 };

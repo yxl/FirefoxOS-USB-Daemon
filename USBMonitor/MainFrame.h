@@ -114,6 +114,8 @@ private:
 	static const UINT_PTR DEVICE_ARRIVAL_EVENT_DELAY_TIMER_ID = 0;
 	CCriticalSection m_csDeviceArrivalEvent;
 
+	static const UINT_PTR SOCKET_CHECK_TIMER_ID = 1;
+
 	static const UINT WM_EXECUTE_ON_MAIN_THREAD = WM_USER + 200;
 	
 	CCriticalSection m_csExecuteOnUIThread;

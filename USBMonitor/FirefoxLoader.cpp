@@ -38,6 +38,7 @@ void FirefoxLoader::TryLoadInternal()
 	// Check if the process is already running
 	DWORD pid = FindProcess(strFirefoxPath);
 	TCHAR szUrl[] = _T("forward tcp:9500 tcp:9500");
+	/*
 	if (pid)
 	{
 		m_cs.Lock();
@@ -45,7 +46,7 @@ void FirefoxLoader::TryLoadInternal()
 		m_cs.Unlock();
 		return;
 	}
-
+	*/
 	::ShellExecute(NULL, _T("open"), strFirefoxPath, szUrl, NULL, SW_HIDE);
 	m_cs.Lock();
 	m_bRunning = false;

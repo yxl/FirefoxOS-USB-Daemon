@@ -19,8 +19,8 @@ class SocketService
 public:
 	SocketService(SocketServiceCallback* pCallback)
 		: m_bStarted(false)
+		, m_bConnected(false)
 		, m_pCallback(pCallback)
-		, m_pCurServer(NULL)
 	{
 	}
 
@@ -30,6 +30,8 @@ public:
 
 	void Start();
 	void Stop();
+
+	bool StartNewServer();
 
 	// Send message to all clients.
 	void SendString(const char* utf8String);
@@ -41,11 +43,6 @@ private:
 
 	void OnStringReceived(const char* utf8String);
 	void OnEvent(UINT uEvent, CSocketManager* pManager);
-
-	bool StartNewServer();
-
-	// Save port number to drvier_manager.ini
-	void SavePortNum(const CString& strPort) const;
 private:
 	class CSocketManager: public CSocketComm 
 	{
@@ -62,9 +59,9 @@ private:
 	};
 
 	bool m_bStarted;
+	bool m_bConnected;
 	SocketServiceCallback* m_pCallback;
-	static const unsigned int MAX_CONNECTION = 2;
-	CSocketManager m_SocketManager[MAX_CONNECTION];
-	CSocketManager* m_pCurServer;
+	CSocketManager m_SocketManager;
 	CCriticalSection m_csSendString;
+	CCriticalSection m_csSocket;
 };

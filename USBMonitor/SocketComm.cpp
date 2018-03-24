@@ -50,50 +50,50 @@ SockAddrIn& SockAddrIn::Copy(const SockAddrIn& sin)
 // IsEqual
 bool SockAddrIn::IsEqual(const SockAddrIn& sin) const
 {
-    // Is it Equal? - ignore 'sin_zero'
-    return (memcmp(this, &sin, Size()-sizeof(sin_zero)) == 0);
+	// Is it Equal? - ignore 'sin_zero'
+	return (memcmp(this, &sin, Size() - sizeof(sin_zero)) == 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // IsGreater
 bool SockAddrIn::IsGreater(const SockAddrIn& sin) const
 {
-    // Is it Greater? - ignore 'sin_zero'
-    return (memcmp(this, &sin, Size()-sizeof(sin_zero)) > 0);
+	// Is it Greater? - ignore 'sin_zero'
+	return (memcmp(this, &sin, Size() - sizeof(sin_zero)) > 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // IsLower
 bool SockAddrIn::IsLower(const SockAddrIn& sin) const
 {
-    // Is it Lower? - ignore 'sin_zero'
-    return (memcmp(this, &sin, Size()-sizeof(sin_zero)) < 0);
+	// Is it Lower? - ignore 'sin_zero'
+	return (memcmp(this, &sin, Size() - sizeof(sin_zero)) < 0);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // CreateFrom
 bool SockAddrIn::CreateFrom(LPCTSTR sAddr, LPCTSTR sService, int nFamily /*=AF_INET*/)
 {
-    Clear();
-    sin_addr.s_addr = htonl( CSocketComm::GetIPAddress(sAddr) );
-    sin_port = htons( CSocketComm::GetPortNumber( sService ) );
-    sin_family = nFamily;
-    return !IsNull();
+	Clear();
+	sin_addr.s_addr = CSocketComm::GetIPAddress(sAddr);
+	sin_port = htons(CSocketComm::GetPortNumber(sService));
+	sin_family = nFamily;
+	return !IsNull();
 }
 
 
 ///////////////////////////////////////////////////////////////////////////////
 // Construct & Destruct
 CSocketComm::CSocketComm() :
-    m_bServer(false), m_bSmartAddressing(false), m_bBroadcast(false),
-    m_hComm(INVALID_HANDLE_VALUE), m_hThread(NULL), m_hMutex(NULL)
+	m_bServer(false), m_bSmartAddressing(false), m_bBroadcast(false),
+	m_hComm(INVALID_HANDLE_VALUE), m_hThread(NULL), m_hMutex(NULL)
 {
 
 }
 
 CSocketComm::~CSocketComm()
 {
-    StopComm();
+	StopComm();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -104,7 +104,7 @@ CSocketComm::~CSocketComm()
 // IsOpen
 bool CSocketComm::IsOpen() const
 {
-    return ( INVALID_HANDLE_VALUE != m_hComm );
+	return (INVALID_HANDLE_VALUE != m_hComm);
 }
 
 
@@ -112,7 +112,7 @@ bool CSocketComm::IsOpen() const
 // IsStart
 bool CSocketComm::IsStart() const
 {
-    return ( NULL != m_hThread );
+	return (NULL != m_hThread);
 }
 
 
@@ -120,7 +120,7 @@ bool CSocketComm::IsStart() const
 // IsServer
 bool CSocketComm::IsServer() const
 {
-    return m_bServer;
+	return m_bServer;
 }
 
 
@@ -128,7 +128,7 @@ bool CSocketComm::IsServer() const
 // IsBroadcast
 bool CSocketComm::IsBroadcast() const
 {
-    return m_bBroadcast;
+	return m_bBroadcast;
 }
 
 
@@ -136,7 +136,7 @@ bool CSocketComm::IsBroadcast() const
 // IsSmartAddressing
 bool CSocketComm::IsSmartAddressing() const
 {
-    return m_bSmartAddressing;
+	return m_bSmartAddressing;
 }
 
 
@@ -144,7 +144,7 @@ bool CSocketComm::IsSmartAddressing() const
 // GetSocket
 SOCKET CSocketComm::GetSocket() const
 {
-    return (SOCKET) m_hComm;
+	return (SOCKET)m_hComm;
 }
 
 
@@ -152,8 +152,8 @@ SOCKET CSocketComm::GetSocket() const
 // LockList
 void CSocketComm::LockList()
 {
-    if (NULL != m_hMutex)
-        WaitForSingleObject(m_hMutex, INFINITE);
+	if (NULL != m_hMutex)
+		WaitForSingleObject(m_hMutex, INFINITE);
 }
 
 
@@ -161,8 +161,8 @@ void CSocketComm::LockList()
 // UnlockList
 void CSocketComm::UnlockList()
 {
-    if (NULL != m_hMutex)
-        ReleaseMutex(m_hMutex);
+	if (NULL != m_hMutex)
+		ReleaseMutex(m_hMutex);
 }
 
 
@@ -170,26 +170,26 @@ void CSocketComm::UnlockList()
 // AddToList
 void CSocketComm::AddToList(const SockAddrIn& saddr_in)
 {
-    LockList();
-    m_AddrList.insert( m_AddrList.end(), saddr_in );
-    UnlockList();
+	LockList();
+	m_AddrList.insert(m_AddrList.end(), saddr_in);
+	UnlockList();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // RemoveFromList
 void CSocketComm::RemoveFromList(const SockAddrIn& saddr_in)
 {
-    LockList();
-    m_AddrList.remove( saddr_in );
-    UnlockList();
+	LockList();
+	m_AddrList.remove(saddr_in);
+	UnlockList();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // SetServerState
 void CSocketComm::SetServerState(bool bServer)
 {
-    if (!IsStart())
-        m_bServer = bServer;
+	if (!IsStart())
+		m_bServer = bServer;
 }
 
 
@@ -197,8 +197,8 @@ void CSocketComm::SetServerState(bool bServer)
 // SetSmartAddressing : Address is included with message
 void CSocketComm::SetSmartAddressing(bool bSmartAddressing)
 {
-    if (!IsStart())
-        m_bSmartAddressing = bSmartAddressing;
+	if (!IsStart())
+		m_bSmartAddressing = bSmartAddressing;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -235,27 +235,27 @@ void CSocketComm::OnEvent(UINT uEvent, LPVOID lpvData)
 // PARAMETERS:
 //  LPCTSTR strServiceName: Service name or port string
 ///////////////////////////////////////////////////////////////////////////////
-USHORT CSocketComm::GetPortNumber( LPCTSTR strServiceName )
+USHORT CSocketComm::GetPortNumber(LPCTSTR strServiceName)
 {
-    LPSERVENT   lpservent;
-    USHORT      nPortNumber = 0;
+	LPSERVENT   lpservent;
+	USHORT      nPortNumber = 0;
 
-    if ( _istdigit( strServiceName[0] ) ) {
-        nPortNumber = (USHORT) _ttoi( strServiceName );
-    }
-    else {
+	if (_istdigit(strServiceName[0])) {
+		nPortNumber = (USHORT)_ttoi(strServiceName);
+	}
+	else {
 #ifdef _UNICODE
-        char pstrService[HOSTNAME_SIZE];
-        WideCharToMultiByte(CP_ACP, 0, strServiceName, -1, pstrService, sizeof(pstrService), NULL, NULL );
+		char pstrService[HOSTNAME_SIZE];
+		WideCharToMultiByte(CP_ACP, 0, strServiceName, -1, pstrService, sizeof(pstrService), NULL, NULL);
 #else
-        LPCTSTR pstrService = strServiceName;
+		LPCTSTR pstrService = strServiceName;
 #endif
-        // Convert network byte order to host byte order
-        if ( (lpservent = getservbyname( pstrService, NULL )) != NULL )
-            nPortNumber = ntohs( lpservent->s_port );
-    }
+		// Convert network byte order to host byte order
+		if ((lpservent = getservbyname(pstrService, NULL)) != NULL)
+			nPortNumber = ntohs(lpservent->s_port);
+	}
 
-    return nPortNumber;
+	return nPortNumber;
 }
 
 
@@ -269,37 +269,37 @@ USHORT CSocketComm::GetPortNumber( LPCTSTR strServiceName )
 // PARAMETERS:
 //  LPCTSTR strHostName: host name to get IP address
 ///////////////////////////////////////////////////////////////////////////////
-ULONG CSocketComm::GetIPAddress( LPCTSTR strHostName )
+ULONG CSocketComm::GetIPAddress(LPCTSTR strHostName)
 {
-    LPHOSTENT   lphostent;
-    ULONG       uAddr = INADDR_NONE;
-    TCHAR       strLocal[HOSTNAME_SIZE] = { 0 };
+	LPHOSTENT   lphostent;
+	ULONG       uAddr = INADDR_NONE;
+	TCHAR       strLocal[HOSTNAME_SIZE] = { 0 };
 
-    // if no name specified, get local
-    if ( NULL == strHostName )
-    {
-        GetLocalName(strLocal, sizeof(strLocal));
-        strHostName = strLocal;
-    }
+	// if no name specified, get local
+	if (NULL == strHostName)
+	{
+		GetLocalName(strLocal, sizeof(strLocal));
+		strHostName = strLocal;
+	}
 
 #ifdef _UNICODE
-    char strHost[HOSTNAME_SIZE] = { 0 };
-    WideCharToMultiByte(CP_ACP, 0, strHostName, -1, strHost, sizeof(strHost), NULL, NULL );
+	char strHost[HOSTNAME_SIZE] = { 0 };
+	WideCharToMultiByte(CP_ACP, 0, strHostName, -1, strHost, sizeof(strHost), NULL, NULL);
 #else
-    LPCTSTR strHost = strHostName;
+	LPCTSTR strHost = strHostName;
 #endif
 
-    // Check for an Internet Protocol dotted address string
-    uAddr = inet_addr( strHost );
+	// Check for an Internet Protocol dotted address string
+	uAddr = inet_addr(strHost);
 
-    if ( (INADDR_NONE == uAddr) && (strcmp( strHost, "255.255.255.255" )) )
-    {
-        // It's not an address, then try to resolve it as a hostname
-        if ( lphostent = gethostbyname( strHost ) )
-            uAddr = *((ULONG *) lphostent->h_addr_list[0]);
-    }
-    
-    return ntohl( uAddr );
+	if ((INADDR_NONE == uAddr) && (strcmp(strHost, "255.255.255.255")))
+	{
+		// It's not an address, then try to resolve it as a hostname
+		if (lphostent = gethostbyname(strHost))
+			uAddr = *((ULONG *)lphostent->h_addr_list[0]);
+	}
+
+	return uAddr;
 }
 
 
@@ -314,38 +314,38 @@ ULONG CSocketComm::GetIPAddress( LPCTSTR strHostName )
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::GetLocalName(LPTSTR strName, UINT nSize)
 {
-    if (strName != NULL && nSize > 0)
-    {
-        char strHost[HOSTNAME_SIZE] = { 0 };
+	if (strName != NULL && nSize > 0)
+	{
+		char strHost[HOSTNAME_SIZE] = { 0 };
 
-        // get host name, if fail, SetLastError is set
-        if (SOCKET_ERROR != gethostname(strHost, sizeof(strHost)))
-        {
-            struct hostent* hp;
-            hp = gethostbyname(strHost);
-            if (hp != NULL) {
-                strncpy(strHost, hp->h_name, HOSTNAME_SIZE);
-            }
+		// get host name, if fail, SetLastError is set
+		if (SOCKET_ERROR != gethostname(strHost, sizeof(strHost)))
+		{
+			struct hostent* hp;
+			hp = gethostbyname(strHost);
+			if (hp != NULL) {
+				strncpy(strHost, hp->h_name, HOSTNAME_SIZE);
+			}
 
-            // check if user provide enough buffer
-            if (strlen(strHost) > nSize)
-            {
-                SetLastError(ERROR_INSUFFICIENT_BUFFER);
-                return false;
-            }
+			// check if user provide enough buffer
+			if (strlen(strHost) > nSize)
+			{
+				SetLastError(ERROR_INSUFFICIENT_BUFFER);
+				return false;
+			}
 
-            // Unicode conversion
+			// Unicode conversion
 #ifdef _UNICODE
-            return (0 != MultiByteToWideChar(CP_ACP, 0, strHost, -1, strName, nSize ));
+			return (0 != MultiByteToWideChar(CP_ACP, 0, strHost, -1, strName, nSize));
 #else
-            _tcscpy(strName, strHost);
-            return true;
+			_tcscpy(strName, strHost);
+			return true;
 #endif
-        }
-    }
-    else
-        SetLastError(ERROR_INVALID_PARAMETER);
-    return false;
+		}
+	}
+	else
+		SetLastError(ERROR_INVALID_PARAMETER);
+	return false;
 }
 
 
@@ -360,52 +360,52 @@ bool CSocketComm::GetLocalName(LPTSTR strName, UINT nSize)
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::GetLocalAddress(LPTSTR strAddress, UINT nSize)
 {
-    // Get computer local address
-    if (strAddress != NULL && nSize > 0)
-    {
-        char strHost[HOSTNAME_SIZE] = { 0 };
+	// Get computer local address
+	if (strAddress != NULL && nSize > 0)
+	{
+		char strHost[HOSTNAME_SIZE] = { 0 };
 
-        // get host name, if fail, SetLastError is called
-        if (SOCKET_ERROR != gethostname(strHost, sizeof(strHost)))
-        {
-            struct hostent* hp;
-            hp = gethostbyname(strHost);
-            if (hp != NULL && hp->h_addr_list[0] != NULL)
-            {
-                // IPv4: Address is four bytes (32-bit)
-                if ( hp->h_length < 4)
-                    return false;
+		// get host name, if fail, SetLastError is called
+		if (SOCKET_ERROR != gethostname(strHost, sizeof(strHost)))
+		{
+			struct hostent* hp;
+			hp = gethostbyname(strHost);
+			if (hp != NULL && hp->h_addr_list[0] != NULL)
+			{
+				// IPv4: Address is four bytes (32-bit)
+				if (hp->h_length < 4)
+					return false;
 
-                // Convert address to . format
-                strHost[0] = 0;
+				// Convert address to . format
+				strHost[0] = 0;
 
-                // IPv4: Create Address string
-                sprintf(strHost, "%u.%u.%u.%u",
-                    (UINT)(((PBYTE) hp->h_addr_list[0])[0]),
-                    (UINT)(((PBYTE) hp->h_addr_list[0])[1]),
-                    (UINT)(((PBYTE) hp->h_addr_list[0])[2]),
-                    (UINT)(((PBYTE) hp->h_addr_list[0])[3]));
+				// IPv4: Create Address string
+				sprintf(strHost, "%u.%u.%u.%u",
+					(UINT)(((PBYTE)hp->h_addr_list[0])[0]),
+					(UINT)(((PBYTE)hp->h_addr_list[0])[1]),
+					(UINT)(((PBYTE)hp->h_addr_list[0])[2]),
+					(UINT)(((PBYTE)hp->h_addr_list[0])[3]));
 
-                // check if user provide enough buffer
-                if (strlen(strHost) > nSize)
-                {
-                    SetLastError(ERROR_INSUFFICIENT_BUFFER);
-                    return false;
-                }
+				// check if user provide enough buffer
+				if (strlen(strHost) > nSize)
+				{
+					SetLastError(ERROR_INSUFFICIENT_BUFFER);
+					return false;
+				}
 
-            // Unicode conversion
+				// Unicode conversion
 #ifdef _UNICODE
-                return (0 != MultiByteToWideChar(CP_ACP, 0, strHost, -1, strAddress,nSize ));
+				return (0 != MultiByteToWideChar(CP_ACP, 0, strHost, -1, strAddress, nSize));
 #else
-                _tcscpy(strAddress, strHost);
-                return true;
+				_tcscpy(strAddress, strHost);
+				return true;
 #endif
-            }
-        }
-    }
-    else
-        SetLastError(ERROR_INVALID_PARAMETER);
-    return false;
+			}
+		}
+	}
+	else
+		SetLastError(ERROR_INVALID_PARAMETER);
+	return false;
 }
 
 
@@ -420,9 +420,9 @@ bool CSocketComm::GetLocalAddress(LPTSTR strAddress, UINT nSize)
 ///////////////////////////////////////////////////////////////////////////////
 SOCKET CSocketComm::WaitForConnection(SOCKET sock)
 {
-    // Accept an incoming connection - blocking
-    // no information about remote address is returned
-    return accept(sock, 0, 0);
+	// Accept an incoming connection - blocking
+	// no information about remote address is returned
+	return accept(sock, 0, 0);
 }
 
 
@@ -437,8 +437,8 @@ SOCKET CSocketComm::WaitForConnection(SOCKET sock)
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::ShutdownConnection(SOCKET sock)
 {
-    shutdown(sock, SD_BOTH);
-    return ( 0 == closesocket( sock ));
+	shutdown(sock, SD_BOTH);
+	return (0 == closesocket(sock));
 }
 
 
@@ -452,13 +452,13 @@ bool CSocketComm::ShutdownConnection(SOCKET sock)
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::GetSockName(SockAddrIn& saddr_in)
 {
-    if (IsOpen())
-    {
-        int namelen = saddr_in.Size();
-        return (SOCKET_ERROR != getsockname(GetSocket(), saddr_in, &namelen));
-    }
+	if (IsOpen())
+	{
+		int namelen = saddr_in.Size();
+		return (SOCKET_ERROR != getsockname(GetSocket(), saddr_in, &namelen));
+	}
 
-    return false;
+	return false;
 }
 
 
@@ -472,13 +472,13 @@ bool CSocketComm::GetSockName(SockAddrIn& saddr_in)
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::GetPeerName(SockAddrIn& saddr_in)
 {
-    if (IsOpen())
-    {
-        int namelen = saddr_in.Size();
-        return (SOCKET_ERROR != getpeername(GetSocket(), saddr_in, &namelen));  
-    }
+	if (IsOpen())
+	{
+		int namelen = saddr_in.Size();
+		return (SOCKET_ERROR != getpeername(GetSocket(), saddr_in, &namelen));
+	}
 
-    return false;
+	return false;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -491,27 +491,27 @@ bool CSocketComm::GetPeerName(SockAddrIn& saddr_in)
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::AddMembership(LPCTSTR strAddress)
 {
-    if ( IsOpen() )
-    {
-        int nType = 0;
-        int nOptLen = sizeof(int);
-        SOCKET sock = (SOCKET) m_hComm;
-        if ( SOCKET_ERROR != getsockopt(sock, SOL_SOCKET, SO_TYPE, (char*)&nType, &nOptLen))
-        {
-            if ( nType == SOCK_DGRAM )
-            {
-                int nTTL = 5;
-                if ( SOCKET_ERROR != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_TTL, (const char*)&nTTL, sizeof(nTTL)))
-                {
-                    ip_mreq mreq;
-                    mreq.imr_multiaddr.s_addr = htonl( CSocketComm::GetIPAddress( strAddress ) );
-                    mreq.imr_interface.s_addr = htonl( INADDR_ANY );
-                    return ( SOCKET_ERROR != setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char*)&mreq, sizeof(mreq)));
-                }
-            }
-        }
-    }
-    return false;
+	if (IsOpen())
+	{
+		int nType = 0;
+		int nOptLen = sizeof(int);
+		SOCKET sock = (SOCKET)m_hComm;
+		if (SOCKET_ERROR != getsockopt(sock, SOL_SOCKET, SO_TYPE, (char*)&nType, &nOptLen))
+		{
+			if (nType == SOCK_DGRAM)
+			{
+				int nTTL = 5;
+				if (SOCKET_ERROR != setsockopt(sock, IPPROTO_IP, IP_MULTICAST_TTL, (const char*)&nTTL, sizeof(nTTL)))
+				{
+					ip_mreq mreq;
+					mreq.imr_multiaddr.s_addr = htonl(CSocketComm::GetIPAddress(strAddress));
+					mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+					return (SOCKET_ERROR != setsockopt(sock, IPPROTO_IP, IP_ADD_MEMBERSHIP, (const char*)&mreq, sizeof(mreq)));
+				}
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -525,23 +525,23 @@ bool CSocketComm::AddMembership(LPCTSTR strAddress)
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::DropMembership(LPCTSTR strAddress)
 {
-    if ( IsOpen() )
-    {
-        int nType = 0;
-        int nOptLen = sizeof(int);
-        SOCKET sock = (SOCKET) m_hComm;
-        if ( SOCKET_ERROR != getsockopt(sock, SOL_SOCKET, SO_TYPE, (char*)&nType, &nOptLen))
-        {
-            if ( nType == SOCK_DGRAM )
-            {
-                ip_mreq mreq;
-                mreq.imr_multiaddr.s_addr = htonl( CSocketComm::GetIPAddress( strAddress ) );
-                mreq.imr_interface.s_addr = htonl( INADDR_ANY );
-                return ( SOCKET_ERROR != setsockopt(sock, IPPROTO_IP, IP_DROP_MEMBERSHIP, (const char*)&mreq, sizeof(mreq)));
-            }
-        }
-    }
-    return false;
+	if (IsOpen())
+	{
+		int nType = 0;
+		int nOptLen = sizeof(int);
+		SOCKET sock = (SOCKET)m_hComm;
+		if (SOCKET_ERROR != getsockopt(sock, SOL_SOCKET, SO_TYPE, (char*)&nType, &nOptLen))
+		{
+			if (nType == SOCK_DGRAM)
+			{
+				ip_mreq mreq;
+				mreq.imr_multiaddr.s_addr = htonl(CSocketComm::GetIPAddress(strAddress));
+				mreq.imr_interface.s_addr = htonl(INADDR_ANY);
+				return (SOCKET_ERROR != setsockopt(sock, IPPROTO_IP, IP_DROP_MEMBERSHIP, (const char*)&mreq, sizeof(mreq)));
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -562,67 +562,67 @@ bool CSocketComm::DropMembership(LPCTSTR strAddress)
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::CreateSocketEx(LPCTSTR strHost, LPCTSTR strServiceName, int nFamily, int nType, UINT uOptions /* = 0 */)
 {
-    // Socket is already opened
-    if ( IsOpen() )
-        return false;
+	// Socket is already opened
+	if (IsOpen())
+		return false;
 
-    // Create a Socket that is bound to a specific service provide
-    // nFamily: (AF_INET)
-    // nType: (SOCK_STREAM, SOCK_DGRAM)
-    SOCKET sock = socket(nFamily, nType, IPPROTO_IP);
-    if (INVALID_SOCKET != sock)
-    {
-        if (uOptions & SO_REUSEADDR)
-        {
-            // Inform Windows Sockets provider that a bind on a socket should not be disallowed
-            // because the desired address is already in use by another socket
-            BOOL optval = TRUE;
-            if ( SOCKET_ERROR == setsockopt( sock, SOL_SOCKET, SO_REUSEADDR, (char *) &optval, sizeof( BOOL ) ) )
-            {
-                closesocket( sock );
-                return false;
-            }
-        }
+	// Create a Socket that is bound to a specific service provide
+	// nFamily: (AF_INET)
+	// nType: (SOCK_STREAM, SOCK_DGRAM)
+	SOCKET sock = socket(nFamily, nType, IPPROTO_IP);
+	if (INVALID_SOCKET != sock)
+	{
+		if (uOptions & SO_REUSEADDR)
+		{
+			// Inform Windows Sockets provider that a bind on a socket should not be disallowed
+			// because the desired address is already in use by another socket
+			BOOL optval = TRUE;
+			if (SOCKET_ERROR == setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (char *)&optval, sizeof(BOOL)))
+			{
+				closesocket(sock);
+				return false;
+			}
+		}
 
-        if (nType == SOCK_DGRAM)
-        {
-            if (uOptions & SO_BROADCAST)
-            {
-                // Inform Windows Sockets provider that broadcast messages are allowed
-                BOOL optval = TRUE;
-                if ( SOCKET_ERROR == setsockopt( sock, SOL_SOCKET, SO_BROADCAST, (char *) &optval, sizeof( BOOL ) ) )
-                {
-                    closesocket( sock );
-                    return false;
-                }
-            }
-        }
+		if (nType == SOCK_DGRAM)
+		{
+			if (uOptions & SO_BROADCAST)
+			{
+				// Inform Windows Sockets provider that broadcast messages are allowed
+				BOOL optval = TRUE;
+				if (SOCKET_ERROR == setsockopt(sock, SOL_SOCKET, SO_BROADCAST, (char *)&optval, sizeof(BOOL)))
+				{
+					closesocket(sock);
+					return false;
+				}
+			}
+		}
 
-        // Associate a local address with the socket
-        SockAddrIn sockAddr;
-        sockAddr.CreateFrom(strHost, strServiceName, nFamily);
+		// Associate a local address with the socket
+		SockAddrIn sockAddr;
+		sockAddr.CreateFrom(strHost, strServiceName, nFamily);
 
-        if ( SOCKET_ERROR == ::bind(sock, sockAddr, sockAddr.Size()))
-        {
-            closesocket( sock );
-            return false;
-        }
+		if (SOCKET_ERROR == ::bind(sock, sockAddr, sockAddr.Size()))
+		{
+			closesocket(sock);
+			return false;
+		}
 
-        // Listen to the socket, only valid for connection socket
-        if (SOCK_STREAM == nType)
-        {
-            if ( SOCKET_ERROR == listen(sock, SOMAXCONN))
-            {
-                closesocket( sock );
-                return false;
-            }
-        }
+		// Listen to the socket, only valid for connection socket
+		if (SOCK_STREAM == nType)
+		{
+			if (SOCKET_ERROR == listen(sock, SOMAXCONN))
+			{
+				closesocket(sock);
+				return false;
+			}
+		}
 
-        // Success, now we may save this socket
-        m_hComm = (HANDLE) sock;
-    }
+		// Success, now we may save this socket
+		m_hComm = (HANDLE)sock;
+	}
 
-    return (INVALID_SOCKET != sock);
+	return (INVALID_SOCKET != sock);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -641,7 +641,7 @@ bool CSocketComm::CreateSocketEx(LPCTSTR strHost, LPCTSTR strServiceName, int nF
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::CreateSocket(LPCTSTR strServiceName, int nFamily, int nType, UINT uOptions /* = 0 */)
 {
-    return CreateSocketEx(NULL, strServiceName, nFamily, nType, uOptions);
+	return CreateSocketEx(NULL, strServiceName, nFamily, nType, uOptions);
 }
 
 
@@ -658,44 +658,33 @@ bool CSocketComm::CreateSocket(LPCTSTR strServiceName, int nFamily, int nType, U
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::ConnectTo(LPCTSTR strDestination, LPCTSTR strServiceName, int nFamily, int nType)
 {
-    // Socket is already opened
-    if ( IsOpen() )
-        return false;
+	// Socket is already opened
+	if (IsOpen())
+		return false;
 
-    // Create a Socket that is bound to a specific service provide
-    // nFamily: (AF_INET)
-    // nType: (SOCK_STREAM, SOCK_DGRAM)
-    SOCKET sock = socket(nFamily, nType, 0);
-    if (INVALID_SOCKET != sock)
-    {
-        // Associate a local address with the socket
-        SockAddrIn sockAddr;
-        if (false == sockAddr.CreateFrom(NULL, TEXT("0"), nFamily))
-        {
-            closesocket( sock );
-            return false;
-        }
+	// Create a Socket that is bound to a specific service provide
+	// nFamily: (AF_INET)
+	// nType: (SOCK_STREAM, SOCK_DGRAM)
+	SOCKET sock = socket(nFamily, nType, IPPROTO_TCP);
+	if (INVALID_SOCKET != sock)
+	{
+		// Associate a local address with the socket
+		SockAddrIn sockAddr;
 
-        if ( SOCKET_ERROR == ::bind(sock, sockAddr, sockAddr.Size() ))
-        {
-            closesocket( sock );
-            return false;
-        }
+		// Now get destination address & port
+		sockAddr.CreateFrom(strDestination, strServiceName);
 
-        // Now get destination address & port
-        sockAddr.CreateFrom( strDestination, strServiceName );
+		// try to connect - if fail, server not ready
+		if (SOCKET_ERROR == connect(sock, sockAddr, sockAddr.Size()))
+		{
+			closesocket(sock);
+			return false;
+		}
 
-        // try to connect - if fail, server not ready
-        if (SOCKET_ERROR == connect( sock, sockAddr, sockAddr.Size()))
-        {
-            closesocket( sock );
-            return false;
-        }
-
-        // Success, now we may save this socket
-        m_hComm = (HANDLE) sock;
-    }
-    return (INVALID_SOCKET != sock);
+		// Success, now we may save this socket
+		m_hComm = (HANDLE)sock;
+	}
+	return (INVALID_SOCKET != sock);
 }
 
 
@@ -709,12 +698,12 @@ bool CSocketComm::ConnectTo(LPCTSTR strDestination, LPCTSTR strServiceName, int 
 ///////////////////////////////////////////////////////////////////////////////
 void CSocketComm::CloseComm()
 {
-    if (IsOpen())
-    {
-        ShutdownConnection((SOCKET)m_hComm);
-        m_hComm = INVALID_HANDLE_VALUE;
-        m_bBroadcast = false;
-    }
+	if (IsOpen())
+	{
+		ShutdownConnection((SOCKET)m_hComm);
+		m_hComm = INVALID_HANDLE_VALUE;
+		m_bBroadcast = false;
+	}
 }
 
 
@@ -728,29 +717,29 @@ void CSocketComm::CloseComm()
 ///////////////////////////////////////////////////////////////////////////////
 bool CSocketComm::WatchComm()
 {
-    if (!IsStart())
-    {
-        if (IsOpen())
-        {
-            HANDLE hThread;
-            UINT uiThreadId = 0;
-            hThread = (HANDLE)_beginthreadex(NULL,  // Security attributes
-                                      0,    // stack
-                        SocketThreadProc,   // Thread proc
-                                    this,   // Thread param
-                        CREATE_SUSPENDED,   // creation mode
-                            &uiThreadId);   // Thread ID
+	if (!IsStart())
+	{
+		if (IsOpen())
+		{
+			HANDLE hThread;
+			UINT uiThreadId = 0;
+			hThread = (HANDLE)_beginthreadex(NULL,  // Security attributes
+				0,    // stack
+				SocketThreadProc,   // Thread proc
+				this,   // Thread param
+				CREATE_SUSPENDED,   // creation mode
+				&uiThreadId);   // Thread ID
 
-            if ( NULL != hThread)
-            {
-                //SetThreadPriority(hThread, THREAD_PRIORITY_ABOVE_NORMAL);
-                ResumeThread( hThread );
-                m_hThread = hThread;
-                return true;
-            }
-        }
-    }
-    return false;
+			if (NULL != hThread)
+			{
+				//SetThreadPriority(hThread, THREAD_PRIORITY_ABOVE_NORMAL);
+				ResumeThread(hThread);
+				m_hThread = hThread;
+				return true;
+			}
+		}
+	}
+	return false;
 }
 
 
@@ -764,34 +753,34 @@ bool CSocketComm::WatchComm()
 ///////////////////////////////////////////////////////////////////////////////
 void CSocketComm::StopComm()
 {
-    // Close Socket
-    if (IsOpen())
-    {
-        CloseComm();
-    }
+	// Close Socket
+	if (IsOpen())
+	{
+		CloseComm();
+	}
 
-    // Kill Thread
-    if (IsStart())
-    {
-        SleepEx(DEFAULT_TIMEOUT, TRUE);
-        if (WaitForSingleObject(m_hThread, 1000L) == WAIT_TIMEOUT)
-            TerminateThread(m_hThread, 1L);
-        CloseHandle(m_hThread);
-        m_hThread = NULL;
-    }
+	// Kill Thread
+	if (IsStart())
+	{
+		SleepEx(DEFAULT_TIMEOUT, TRUE);
+		if (WaitForSingleObject(m_hThread, 1000L) == WAIT_TIMEOUT)
+			TerminateThread(m_hThread, 1L);
+		CloseHandle(m_hThread);
+		m_hThread = NULL;
+	}
 
-    // Clear Address list
-    if (!m_AddrList.empty())
-    {
-        m_AddrList.clear();
-    }
+	// Clear Address list
+	if (!m_AddrList.empty())
+	{
+		m_AddrList.clear();
+	}
 
-    // Destroy Synchronization objects
-    if (NULL != m_hMutex)
-    {
-        CloseHandle( m_hMutex );
-        m_hMutex = NULL;
-    }
+	// Destroy Synchronization objects
+	if (NULL != m_hMutex)
+	{
+		CloseHandle(m_hMutex);
+		m_hMutex = NULL;
+	}
 
 }
 
@@ -808,80 +797,80 @@ void CSocketComm::StopComm()
 ///////////////////////////////////////////////////////////////////////////////
 DWORD CSocketComm::ReadComm(LPBYTE lpBuffer, DWORD dwSize, DWORD dwTimeout)
 {
-    _ASSERTE( IsOpen() );
-    _ASSERTE( lpBuffer != NULL );
+	_ASSERTE(IsOpen());
+	_ASSERTE(lpBuffer != NULL);
 
-    if (lpBuffer == NULL || dwSize < 1L)
-        return 0L;
+	if (lpBuffer == NULL || dwSize < 1L)
+		return 0L;
 
-    fd_set  fdRead  = { 0 };
-    TIMEVAL stTime;
-    TIMEVAL *pstTime = NULL;
+	fd_set  fdRead = { 0 };
+	TIMEVAL stTime;
+	TIMEVAL *pstTime = NULL;
 
-    if ( INFINITE != dwTimeout ) {
-        stTime.tv_sec = dwTimeout/1000;
-        stTime.tv_usec = (dwTimeout%1000)*1000;
-        pstTime = &stTime;
-    }
+	if (INFINITE != dwTimeout) {
+		stTime.tv_sec = dwTimeout / 1000;
+		stTime.tv_usec = (dwTimeout % 1000) * 1000;
+		pstTime = &stTime;
+	}
 
-    SOCKET s = (SOCKET) m_hComm;
-    // Set Descriptor
-    if ( !FD_ISSET( s, &fdRead ) )
-        FD_SET( s, &fdRead );
+	SOCKET s = (SOCKET)m_hComm;
+	// Set Descriptor
+	if (!FD_ISSET(s, &fdRead))
+		FD_SET(s, &fdRead);
 
-    // Select function set read timeout
-    DWORD dwBytesRead = 0L;
-    int res = select( s+1, &fdRead, NULL, NULL, pstTime );
-    if ( res > 0)
-    {
-        if (IsBroadcast() || IsSmartAddressing())
-        {
-            SockAddrIn sockAddr;
-            sockAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
-            int nLen = sockAddr.Size();
-            int nOffset = IsSmartAddressing() ? nLen : 0; // use offset for Smart addressing
-            if ( dwSize < (DWORD) nOffset)  // error - buffer to small
-            {
-                SetLastError( ERROR_INVALID_USER_BUFFER );
-                return -1L;
-            }
-            LPSTR lpszData = (LPSTR)(lpBuffer + nOffset);
-            res = recvfrom( s, lpszData, dwSize-nOffset, 0, sockAddr, &nLen);
+	// Select function set read timeout
+	DWORD dwBytesRead = 0L;
+	int res = select(s + 1, &fdRead, NULL, NULL, pstTime);
+	if (res > 0)
+	{
+		if (IsBroadcast() || IsSmartAddressing())
+		{
+			SockAddrIn sockAddr;
+			sockAddr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
+			int nLen = sockAddr.Size();
+			int nOffset = IsSmartAddressing() ? nLen : 0; // use offset for Smart addressing
+			if (dwSize < (DWORD)nOffset)  // error - buffer to small
+			{
+				SetLastError(ERROR_INVALID_USER_BUFFER);
+				return -1L;
+			}
+			LPSTR lpszData = (LPSTR)(lpBuffer + nOffset);
+			res = recvfrom(s, lpszData, dwSize - nOffset, 0, sockAddr, &nLen);
 
-            // clear 'sin_zero', we will ignore them with 'SockAddrIn' anyway!
-            memset(&sockAddr.sin_zero, 0, sizeof(sockAddr.sin_zero));
+			// clear 'sin_zero', we will ignore them with 'SockAddrIn' anyway!
+			memset(&sockAddr.sin_zero, 0, sizeof(sockAddr.sin_zero));
 
-            // Lock the list...
-            LockList();
-            m_AddrList.remove( sockAddr );
+			// Lock the list...
+			LockList();
+			m_AddrList.remove(sockAddr);
 
-            if ( res >= 0)
-            {
-                // insert unique address
-                m_AddrList.insert(m_AddrList.end(), sockAddr);
+			if (res >= 0)
+			{
+				// insert unique address
+				m_AddrList.insert(m_AddrList.end(), sockAddr);
 
-                if (IsSmartAddressing())
-                {
-                    memcpy(lpBuffer, &sockAddr, sockAddr.Size());
-                    res += sockAddr.Size();
-                }
-            }
-            else if (WSAGetLastError() == WSAECONNRESET && m_AddrList.size() == 1)
-            {
-                // recvfrom doesn't always return the connection address for last connection
-                m_AddrList.clear();
-            }
+				if (IsSmartAddressing())
+				{
+					memcpy(lpBuffer, &sockAddr, sockAddr.Size());
+					res += sockAddr.Size();
+				}
+			}
+			else if (WSAGetLastError() == WSAECONNRESET && m_AddrList.size() == 1)
+			{
+				// recvfrom doesn't always return the connection address for last connection
+				m_AddrList.clear();
+			}
 
-            UnlockList(); // unlock this object addresses-list
-        }
-        else
-        {
-            res = recv( s, (LPSTR)lpBuffer, dwSize, 0);
-        }
-    }
-    dwBytesRead = (DWORD)((res > 0)?(res) : (-1L));
+			UnlockList(); // unlock this object addresses-list
+		}
+		else
+		{
+			res = recv(s, (LPSTR)lpBuffer, dwSize, 0);
+		}
+	}
+	dwBytesRead = (DWORD)((res > 0) ? (res) : (-1L));
 
-    return dwBytesRead;
+	return dwBytesRead;
 }
 
 
@@ -897,91 +886,91 @@ DWORD CSocketComm::ReadComm(LPBYTE lpBuffer, DWORD dwSize, DWORD dwTimeout)
 ///////////////////////////////////////////////////////////////////////////////
 DWORD CSocketComm::WriteComm(const LPBYTE lpBuffer, DWORD dwCount, DWORD dwTimeout)
 {
-    _ASSERTE( IsOpen() );
-    _ASSERTE( NULL != lpBuffer );
+	_ASSERTE(IsOpen());
+	_ASSERTE(NULL != lpBuffer);
 
-    // Accept 0 bytes message
-    if (!IsOpen() || NULL == lpBuffer)
-        return 0L;
+	// Accept 0 bytes message
+	if (!IsOpen() || NULL == lpBuffer)
+		return 0L;
 
-    fd_set  fdWrite  = { 0 };
-    TIMEVAL stTime;
-    TIMEVAL *pstTime = NULL;
+	fd_set  fdWrite = { 0 };
+	TIMEVAL stTime;
+	TIMEVAL *pstTime = NULL;
 
-    if ( INFINITE != dwTimeout ) {
-        stTime.tv_sec = dwTimeout/1000;
-        stTime.tv_usec = (dwTimeout%1000)*1000;
-        pstTime = &stTime;
-    }
+	if (INFINITE != dwTimeout) {
+		stTime.tv_sec = dwTimeout / 1000;
+		stTime.tv_usec = (dwTimeout % 1000) * 1000;
+		pstTime = &stTime;
+	}
 
-    SOCKET s = (SOCKET) m_hComm;
-    // Set Descriptor
-    if ( !FD_ISSET( s, &fdWrite ) )
-        FD_SET( s, &fdWrite );
+	SOCKET s = (SOCKET)m_hComm;
+	// Set Descriptor
+	if (!FD_ISSET(s, &fdWrite))
+		FD_SET(s, &fdWrite);
 
-    // Select function set write timeout
-    DWORD dwBytesWritten = 0L;
-    int res = select( s+1, NULL, &fdWrite, NULL, pstTime );
-    if ( res > 0)
-    {
-        // Send message to peer or broadcast it
-        bool bSmartAddressing = IsSmartAddressing();
-        if (IsBroadcast() || bSmartAddressing )
-        {
-            // use offset for Smart addressing
-            int nOffset = bSmartAddressing ? sizeof(SOCKADDR_IN) : 0;
-            if (bSmartAddressing)
-            {
-                if ( dwCount < sizeof(SOCKADDR_IN)) // error - buffer to small
-                {
-                    SetLastError( ERROR_INVALID_USER_BUFFER );
-                    return -1L;
-                }
+	// Select function set write timeout
+	DWORD dwBytesWritten = 0L;
+	int res = select(s + 1, NULL, &fdWrite, NULL, pstTime);
+	if (res > 0)
+	{
+		// Send message to peer or broadcast it
+		bool bSmartAddressing = IsSmartAddressing();
+		if (IsBroadcast() || bSmartAddressing)
+		{
+			// use offset for Smart addressing
+			int nOffset = bSmartAddressing ? sizeof(SOCKADDR_IN) : 0;
+			if (bSmartAddressing)
+			{
+				if (dwCount < sizeof(SOCKADDR_IN)) // error - buffer to small
+				{
+					SetLastError(ERROR_INVALID_USER_BUFFER);
+					return -1L;
+				}
 
-                // read socket address from buffer
-                SockAddrIn sockAddr;
-                sockAddr.SetAddr((PSOCKADDR_IN) lpBuffer);
+				// read socket address from buffer
+				SockAddrIn sockAddr;
+				sockAddr.SetAddr((PSOCKADDR_IN)lpBuffer);
 
-                // Get Address and send data
-                if (sockAddr.sin_addr.s_addr != htonl(INADDR_BROADCAST))
-                {
-                    LPSTR lpszData = (LPSTR)(lpBuffer + nOffset);
-                    res = sendto( s, lpszData, dwCount-nOffset, 0, sockAddr, sockAddr.Size());
-                    dwBytesWritten = (DWORD)((res >= 0)?(res) : (-1));
-                    return dwBytesWritten;
-                }
-                else
-                {   // NOTE: broadcast will broadcast only to our peers
-                    // Broadcast send to all connected-peers
-                    LockList(); // Lock this object addresses-list
+				// Get Address and send data
+				if (sockAddr.sin_addr.s_addr != htonl(INADDR_BROADCAST))
+				{
+					LPSTR lpszData = (LPSTR)(lpBuffer + nOffset);
+					res = sendto(s, lpszData, dwCount - nOffset, 0, sockAddr, sockAddr.Size());
+					dwBytesWritten = (DWORD)((res >= 0) ? (res) : (-1));
+					return dwBytesWritten;
+				}
+				else
+				{   // NOTE: broadcast will broadcast only to our peers
+					// Broadcast send to all connected-peers
+					LockList(); // Lock this object addresses-list
 
-                    CSockAddrList::iterator iter = m_AddrList.begin();
-                    for( ; iter != m_AddrList.end(); )
-                    {
-                        // Fix v1.3 - nOffset was missing
-                        sockAddr = (*iter);
-                        res = sendto( s, (LPCSTR)&lpBuffer[nOffset], dwCount-nOffset, 0, sockAddr, iter->Size());
-                        if (res < 0)
-                        {
-                            CSockAddrList::iterator deladdr = iter;
-                            ++iter; // get next
-                            m_AddrList.erase( deladdr );
-                        }
-                        else
-                            ++iter; // get next
-                    }
-                    UnlockList(); // unlock this object addresses-list
-                }
-            }
-            // always return success - UDP
-            res = (int) dwCount - nOffset;
-        }
-        else // Send to peer-connection
-            res = send( s, (LPCSTR)lpBuffer, dwCount, 0);
-    }
-    dwBytesWritten = (DWORD)((res >= 0)?(res) : (-1L));
+					CSockAddrList::iterator iter = m_AddrList.begin();
+					for (; iter != m_AddrList.end(); )
+					{
+						// Fix v1.3 - nOffset was missing
+						sockAddr = (*iter);
+						res = sendto(s, (LPCSTR)&lpBuffer[nOffset], dwCount - nOffset, 0, sockAddr, iter->Size());
+						if (res < 0)
+						{
+							CSockAddrList::iterator deladdr = iter;
+							++iter; // get next
+							m_AddrList.erase(deladdr);
+						}
+						else
+							++iter; // get next
+					}
+					UnlockList(); // unlock this object addresses-list
+				}
+			}
+			// always return success - UDP
+			res = (int)dwCount - nOffset;
+		}
+		else // Send to peer-connection
+			res = send(s, (LPCSTR)lpBuffer, dwCount, 0);
+	}
+	dwBytesWritten = (DWORD)((res >= 0) ? (res) : (-1L));
 
-    return dwBytesWritten;
+	return dwBytesWritten;
 }
 
 
@@ -998,85 +987,85 @@ DWORD CSocketComm::WriteComm(const LPBYTE lpBuffer, DWORD dwCount, DWORD dwTimeo
 ///////////////////////////////////////////////////////////////////////////////
 void CSocketComm::Run()
 {
-    stMessageProxy stMsgProxy;
-    DWORD   dwBytes  = 0L;
-    DWORD   dwTimeout = INFINITE;
-    LPBYTE  lpData  = (LPBYTE)&stMsgProxy;
-    DWORD   dwSize  = sizeof(stMsgProxy);
+	stMessageProxy stMsgProxy;
+	DWORD   dwBytes = 0L;
+	DWORD   dwTimeout = INFINITE;
+	LPBYTE  lpData = (LPBYTE)&stMsgProxy;
+	DWORD   dwSize = sizeof(stMsgProxy);
 
-    bool bSmartAddressing = IsSmartAddressing();
-    if ( !bSmartAddressing )
-    {
-        lpData = stMsgProxy.byData;
-        dwSize = sizeof(stMsgProxy.byData);
-    }
+	bool bSmartAddressing = IsSmartAddressing();
+	if (!bSmartAddressing)
+	{
+		lpData = stMsgProxy.byData;
+		dwSize = sizeof(stMsgProxy.byData);
+	}
 
-    // Should we run as server mode
-    if (IsServer() && !bSmartAddressing)
-    {
-        if (!IsBroadcast())
-        {
-            SOCKET sock = (SOCKET) m_hComm;
-            sock = WaitForConnection( sock );
+	// Should we run as server mode
+	if (IsServer() && !bSmartAddressing)
+	{
+		if (!IsBroadcast())
+		{
+			SOCKET sock = (SOCKET)m_hComm;
+			sock = WaitForConnection(sock);
 
-            // Get new connection socket
-            if (sock != INVALID_SOCKET)
-            {
-                ShutdownConnection( (SOCKET) m_hComm);
-                m_hComm = (HANDLE) sock;
-                OnEvent( EVT_CONSUCCESS, NULL ); // connect
-            }
-            else
-            {
-                // Do not send event if we are closing
-                if (IsOpen())
-                    OnEvent( EVT_CONFAILURE, NULL ); // wait fail
-                return;
-            }
-        }
-    }
-    else
-    {
-        GetPeerName( stMsgProxy.address );
-    }
+			// Get new connection socket
+			if (sock != INVALID_SOCKET)
+			{
+				ShutdownConnection((SOCKET)m_hComm);
+				m_hComm = (HANDLE)sock;
+				OnEvent(EVT_CONSUCCESS, NULL); // connect
+			}
+			else
+			{
+				// Do not send event if we are closing
+				if (IsOpen())
+					OnEvent(EVT_CONFAILURE, NULL); // wait fail
+				return;
+			}
+		}
+	}
+	else
+	{
+		GetPeerName(stMsgProxy.address);
+	}
 
-    while( IsOpen() )
-    {
-        // Blocking mode: Wait for event
-        dwBytes = ReadComm(lpData, dwSize, dwTimeout);
+	while (IsOpen())
+	{
+		// Blocking mode: Wait for event
+		dwBytes = ReadComm(lpData, dwSize, dwTimeout);
 
-        // Error? - need to signal error
-        if (dwBytes == (DWORD)-1L)
-        {
-            // Do not send event if we are closing
-            if (IsOpen())
-            {
-                if ( bSmartAddressing )
-                {
-                    RemoveFromList( stMsgProxy.address );
-                }
-                OnEvent( EVT_CONDROP, &stMsgProxy.address ); // lost connection
-            }
+		// Error? - need to signal error
+		if (dwBytes == (DWORD)-1L)
+		{
+			// Do not send event if we are closing
+			if (IsOpen())
+			{
+				if (bSmartAddressing)
+				{
+					RemoveFromList(stMsgProxy.address);
+				}
+				OnEvent(EVT_CONDROP, &stMsgProxy.address); // lost connection
+			}
 
-            // special case for UDP, alert about the event but do not stop
-            if ( bSmartAddressing )
-                continue;
-            else
-                break;
-        }
+			// special case for UDP, alert about the event but do not stop
+			if (bSmartAddressing)
+				continue;
+			else
+				break;
+		}
 
-        // Chars received?
-        if ( bSmartAddressing && dwBytes == sizeof(SOCKADDR_IN))
-        {
-            OnEvent( EVT_ZEROLENGTH, NULL );
-        }
-        else if (dwBytes > 0L)
-        {
-            OnDataReceived( lpData, dwBytes);
-        }
+		// Chars received?
+		if (bSmartAddressing && dwBytes == sizeof(SOCKADDR_IN))
+		{
+			OnEvent(EVT_ZEROLENGTH, NULL);
+		}
+		else if (dwBytes > 0L)
+		{
+			OnDataReceived(lpData, dwBytes);
+		}
 
-        //Sleep(0);
-    }
+		//Sleep(0);
+	}
 }
 
 
@@ -1092,10 +1081,10 @@ void CSocketComm::Run()
 ///////////////////////////////////////////////////////////////////////////////
 UINT WINAPI CSocketComm::SocketThreadProc(LPVOID pParam)
 {
-    CSocketComm* pThis = reinterpret_cast<CSocketComm*>( pParam );
-    _ASSERTE( pThis != NULL );
+	CSocketComm* pThis = reinterpret_cast<CSocketComm*>(pParam);
+	_ASSERTE(pThis != NULL);
 
-    pThis->Run();
+	pThis->Run();
 
-    return 1L;
+	return 1L;
 } // end SocketThreadProc

@@ -8,7 +8,7 @@
 #include "MainFrame.h"
 #include "App.h"
 
-#define WSA_VERSION  MAKEWORD(2,0)
+#define WSA_VERSION  MAKEWORD(2,2)
 
 void SocketService::Start()
 {
@@ -32,17 +32,9 @@ void SocketService::Start()
 		return;
 	}
 
-	for(int i=0; i<MAX_CONNECTION; i++)
-	{
-		m_SocketManager[i].SetParent(this);
-		m_SocketManager[i].SetServerState(true);	// run as server
-	}
+	m_SocketManager.SetParent(this);
 
-	if (!StartNewServer())
-	{
-		WSACleanup( );
-		return;
-	}
+	StartNewServer();
 
 	m_bStarted = true;
 }
@@ -54,75 +46,46 @@ void SocketService::Stop()
 		return;
 	}
 
-	// Disconnect all clients
-	for(int i=0; i<MAX_CONNECTION; i++)
+	// Disconnect
+	if (m_SocketManager.IsOpen())
 	{
-		if (m_SocketManager[i].IsOpen())
-		{
-			m_SocketManager[i].StopComm();
-		}
+		m_SocketManager.StopComm();
 	}
-	m_pCurServer = NULL;
 
 	// Terminate use of the WS2_32.DLL
 	WSACleanup();
 }
 
-bool SocketService::StartNewServer() 
+bool SocketService::StartNewServer()
 {
-	m_pCurServer = NULL;
-	for(int i=0; i<MAX_CONNECTION; i++)
+	m_csSocket.Enter();
+	if (m_bConnected)
 	{
-		if (!m_SocketManager[i].IsOpen())
-		{
-			m_pCurServer = &m_SocketManager[i];
-			break;
-		}
+		m_csSocket.Leave();
+		return true;
 	}
-	if (m_pCurServer == NULL)
-	{
-		_T("Conection limit exceeded. Cannot create new server connection!\n");
-		return false;
-	}
-
-	// no smart addressing - we use connection oriented
-	m_pCurServer->SetSmartAddressing(false);
-
-	// Find an available port to start server
-	int port;
-	CString strPort;
-	for (port = 8000; port < 9000; port += 23)
-	{
-		// create TCP socket
-		strPort.Format(_T("%d"), port);
-		if (m_pCurServer->CreateSocketEx(_T("127.0.0.1"), strPort, AF_INET, SOCK_STREAM, 0))
-		{
-			break;
-		}
-	}
-	if (port >= 9000) 
+	// connect to TCP socket server
+	if (!m_SocketManager.ConnectTo(_T("127.0.0.1"), _T("9500"), AF_INET, SOCK_STREAM))
 	{
 		// No availalbe port found.
-		TRACE(_T("Failed to start server. No availalbe port found\n"));
-		m_pCurServer = NULL;
+		TRACE(_T("Failed to conect to 127.0.0.1:9500.\n"));
+		m_csSocket.Leave();
 		return false;
 	}
-	if (!m_pCurServer->WatchComm())
+	if (!m_SocketManager.WatchComm())
 	{
-		TRACE(_T("Failed to start server.\n"));
-		m_pCurServer->CloseComm();
-		m_pCurServer = NULL;
+		TRACE(_T("Failed to connect to server.\n"));
+		m_SocketManager.CloseComm();
+		m_csSocket.Leave();
 		return false;
 	}
-	TRACE(_T("Server started. Port=%s\n"), strPort);
-	SavePortNum(strPort);
+	TRACE(_T("Connected. Port=9500\n"));
+	MainFrame::GetInstance()->ExecuteOnUIThread([this]()
+	{
+		m_pCallback->OnConnect();
+	});
+	m_csSocket.Leave();
 	return true;
-}
-
-void SocketService::SavePortNum(const CString& strPort) const
-{
-	CString fileName = CPaintManagerUI::GetInstancePath() + DRIVER_MANAGER_INI_FILE;
-	::WritePrivateProfileString(_T("socket"), _T("port"), strPort, static_cast<LPCTSTR>(fileName));
 }
 
 void SocketService::SendString(const char* utf8String)
@@ -142,27 +105,16 @@ void SocketService::SendString(const char* utf8String)
 
 	m_csSendString.Enter();
 	// Send to all clients
-	for(int i=0; i<MAX_CONNECTION; i++)
+	if (m_SocketManager.IsOpen())
 	{
-		if (m_SocketManager[i].IsOpen() && m_pCurServer != &m_SocketManager[i])
-		{
-			m_SocketManager[i].WriteComm(msgProxy.byData, nLen, INFINITE);
-		}
+		m_SocketManager.WriteComm(msgProxy.byData, nLen, INFINITE);
 	}
 	m_csSendString.Leave();
 }
 
 int SocketService::GetClientCount() const
 {
-	int count = 0;
-	for(int i=0; i<MAX_CONNECTION; i++)
-	{
-		if (m_SocketManager[i].IsOpen() && m_pCurServer != &m_SocketManager[i])
-		{
-			++count;
-		}
-	}
-	return count;
+	return m_bConnected ? 1 : 0;
 }
 
 void SocketService::OnStringReceived(const char* utf8String)
@@ -174,20 +126,18 @@ void SocketService::OnEvent(UINT uEvent, CSocketManager* pManager)
 {
 	switch(uEvent)
 	{
-	case EVT_CONSUCCESS:
-		// When a new connection is accepted, the server will be closed. So we need to start a new server.
-		StartNewServer();
-		m_pCallback->OnConnect();
-		break;
 	case EVT_CONFAILURE: // Fall through
 	case EVT_CONDROP:
 		TRACE(_T("Connection failed or abandoned\n"));
+		m_csSocket.Enter();
 		pManager->StopComm();
-		if (m_pCurServer == NULL)
+		m_bConnected = false;
+		m_csSocket.Leave();
+		StartNewServer();
+		MainFrame::GetInstance()->ExecuteOnUIThread([this]()
 		{
-			StartNewServer();
-		}
-		m_pCallback->OnDisconnect();
+			m_pCallback->OnDisconnect();
+		});
 		break;
 	case EVT_ZEROLENGTH:
 		TRACE( _T("Zero Length Message\n") );
@@ -214,6 +164,11 @@ void SocketService::CSocketManager::OnDataReceived(const LPBYTE lpBuffer, DWORD 
 	utf8String[dwCount] = '\0';
 	CStringA received = utf8String;
 	delete[] utf8String;
+	if (received == "hello\n") {
+		m_pParent->m_csSocket.Enter();
+		m_pParent->m_bConnected = true;
+		m_pParent->m_csSocket.Leave();
+	}
 	MainFrame::GetInstance()->ExecuteOnUIThread([received, this]()
 	{
 		m_pParent->OnStringReceived(received);
